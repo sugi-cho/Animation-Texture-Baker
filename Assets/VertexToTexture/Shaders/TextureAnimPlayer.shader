@@ -1,0 +1,75 @@
+﻿Shader "Unlit/TextureAnimPlayer"
+{
+	Properties
+	{
+		_MainTex ("Texture", 2D) = "white" {}
+		_PosTex("position texture", 2D) = "black"{}
+		_NmlTex("normal texture", 2D) = "white"{}
+		_DT ("delta time", float) = 0
+		_Frames("frame count", Int) = 0
+		_FPS ("fps(frames per sec)", Float) = 30
+		[Toggle(ANIM_LOOP)] _Loop("loop", Float) = 0
+	}
+	SubShader
+	{
+		Tags { "RenderType"="Opaque" }
+		LOD 100
+
+		Pass
+		{
+			CGPROGRAM
+			#pragma vertex vert
+			#pragma fragment frag
+			#pragma multi_compile ___ ANIM_LOOP
+
+			#include "UnityCG.cginc"
+
+			#define ts _PosTex_TexelSize
+
+			struct appdata
+			{
+				float2 uv : TEXCOORD0;
+			};
+
+			struct v2f
+			{
+				float2 uv : TEXCOORD0;
+				float3 normal : TEXCOORD1;
+				float4 vertex : SV_POSITION;
+			};
+
+			sampler2D _MainTex, _PosTex, _NmlTex;
+			float4 _PosTex_TexelSize;
+			float _DT,_FPS;
+			int _Frames;
+			
+			v2f vert (appdata v, uint vid : SV_VertexID)
+			{
+				float t = (_Time.y - _DT) * _FPS;
+#if ANIM_LOOP
+				t = fmod(t, _Frames);
+#else
+				t = clamp(t, 0, _Frames);
+#endif
+				float x = (vid + 0.5) * ts.x;
+				float y = t * ts.y;
+				float4 pos = tex2Dlod(_PosTex, float4(x, 1-y, 0, 0));
+				float3 normal = tex2Dlod(_NmlTex, float4(x, 1 - y, 0, 0));
+
+				v2f o;
+				o.vertex = mul(UNITY_MATRIX_MVP, pos);
+				o.normal = UnityObjectToWorldNormal(normal);
+				o.uv = v.uv;
+				return o;
+			}
+			
+			half4 frag (v2f i) : SV_Target
+			{
+				half diff = dot(i.normal, float3(0,1,0))*0.5 + 0.5;
+				half4 col = tex2D(_MainTex, i.uv);
+				return diff * col;
+			}
+			ENDCG
+		}
+	}
+}
