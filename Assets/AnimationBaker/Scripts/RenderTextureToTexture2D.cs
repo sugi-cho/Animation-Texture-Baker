@@ -1,9 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
-
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 
 public class RenderTextureToTexture2D : MonoBehaviour
 {
@@ -35,7 +30,7 @@ public class RenderTextureToTexture2D : MonoBehaviour
         return Convert(rt, format);
     }
 
-    public static Texture2D Convert(RenderTexture rt, TextureFormat format)
+    static Texture2D Convert(RenderTexture rt, TextureFormat format)
     {
         var tex2d = new Texture2D(rt.width, rt.height, format, false);
         var rect = Rect.MinMaxRect(0f, 0f, tex2d.width, tex2d.height);
@@ -44,24 +39,4 @@ public class RenderTextureToTexture2D : MonoBehaviour
         RenderTexture.active = null;
         return tex2d;
     }
-
-
-#if UNITY_EDITOR
-    [MenuItem("Assets/Convert/RenderTexture -> Texture2D")]
-    public static void ConvertSelected()
-    {
-        var rt = (RenderTexture)Selection.activeObject;
-        if (rt == null)
-        {
-            Debug.LogError("Invalide Object Selected");
-            return;
-        }
-        var tex2d = Convert(rt);
-        AssetDatabase.CreateAsset(tex2d, "Assets/" + rt.name + "_tex2d.asset");
-        AssetDatabase.SaveAssets();
-        AssetDatabase.Refresh();
-
-        Selection.activeObject = tex2d;
-    }
-#endif
 }

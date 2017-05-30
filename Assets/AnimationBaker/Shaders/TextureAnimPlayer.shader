@@ -1,6 +1,4 @@
-﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
-
-Shader "Unlit/TextureAnimPlayer"
+﻿Shader "Unlit/TextureAnimPlayer"
 {
 	Properties
 	{
@@ -8,14 +6,13 @@ Shader "Unlit/TextureAnimPlayer"
 		_PosTex("position texture", 2D) = "black"{}
 		_NmlTex("normal texture", 2D) = "white"{}
 		_DT ("delta time", float) = 0
-		_Frames("frame count", Int) = 0
-		_FPS ("fps(frames per sec)", Float) = 30
+		_Length ("animation length", Float) = 1
 		[Toggle(ANIM_LOOP)] _Loop("loop", Float) = 0
 	}
 	SubShader
 	{
 		Tags { "RenderType"="Opaque" }
-		LOD 100
+		LOD 100 Cull Off
 
 		Pass
 		{
@@ -42,21 +39,20 @@ Shader "Unlit/TextureAnimPlayer"
 
 			sampler2D _MainTex, _PosTex, _NmlTex;
 			float4 _PosTex_TexelSize;
-			float _DT,_FPS;
-			int _Frames;
+			float _Length, _DT;
 			
 			v2f vert (appdata v, uint vid : SV_VertexID)
 			{
-				float t = (_Time.y - _DT) * _FPS;
+				float t = (_Time.y - _DT) / _Length;
 #if ANIM_LOOP
-				t = fmod(t, _Frames);
+				t = fmod(t, 1.0);
 #else
-				t = clamp(t, 0, _Frames);
+				t = saturate(t);
 #endif
 				float x = (vid + 0.5) * ts.x;
-				float y = t * ts.y;
-				float4 pos = tex2Dlod(_PosTex, float4(x, 1-y, 0, 0));
-				float3 normal = tex2Dlod(_NmlTex, float4(x, 1 - y, 0, 0));
+				float y = t;
+				float4 pos = tex2Dlod(_PosTex, float4(x, y, 0, 0));
+				float3 normal = tex2Dlod(_NmlTex, float4(x, y, 0, 0));
 
 				v2f o;
 				o.vertex = UnityObjectToClipPos(pos);

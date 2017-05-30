@@ -1,10 +1,12 @@
 fileFormatVersion: 2
 guid: 1e6f548afb5cc444a83b1255089d8530
-timeCreated: 1496080675
+timeCreated: 1496167716
 licenseType: Free
 MonoImporter:
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - infoTexGen: {fileID: 7200000, guid: c6bbf99e5edb32d41b103202a8f10653, type: 3}
+  - playShader: {fileID: 4800000, guid: c6e38db4bb1289d4d888dbc1d121a69e, type: 3}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

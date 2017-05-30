@@ -10,6 +10,7 @@ using System.IO;
 public class AnimationTextureBaker : MonoBehaviour
 {
     public ComputeShader infoTexGen;
+    public Shader playShader;
 
     public struct VertInfo
     {
@@ -93,8 +94,24 @@ public class AnimationTextureBaker : MonoBehaviour
             Graphics.CopyTexture(pRt, posTex);
             Graphics.CopyTexture(nRt, normTex);
 
+            var mat = new Material(playShader);
+            mat.SetTexture("_MainTex", skin.sharedMaterial.mainTexture);
+            mat.SetTexture("_PosTex", posTex);
+            mat.SetTexture("_NmlTex", normTex);
+            mat.SetFloat("_Length", state.length);
+            if (state.wrapMode == WrapMode.Loop) {
+                mat.SetFloat("_Loop", 1f);
+                mat.EnableKeyword("ANIM_LOOP");
+            }
+
+            var go = new GameObject(name + "." + state.name);
+            go.AddComponent<MeshRenderer>().sharedMaterial = mat;
+            go.AddComponent<MeshFilter>().sharedMesh = skin.sharedMesh;
+
             AssetDatabase.CreateAsset(posTex, Path.Combine(subFolderPath, pRt.name + ".asset"));
             AssetDatabase.CreateAsset(normTex, Path.Combine(subFolderPath, nRt.name + ".asset"));
+            AssetDatabase.CreateAsset(mat, Path.Combine(subFolderPath, string.Format("{0}.{1}.animTex.asset", name, state.name)));
+            PrefabUtility.CreatePrefab(Path.Combine(folderPath, go.name + ".prefab").Replace("\\", "/"), go);
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
 #endif
