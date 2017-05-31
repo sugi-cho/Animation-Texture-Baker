@@ -26,7 +26,7 @@ running.
 
 ![](imgs/baker.png)
 
-- C\# script
+- C\# script(for setup)
 - ComputeShader(Texture Generator)
 - Shader(Texture Animation Player)
 
