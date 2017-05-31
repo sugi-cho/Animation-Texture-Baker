@@ -1,4 +1,4 @@
-# Animation Baker for Unity
+# Animation Texture Baker for Unity
 
 ## Discription
 
