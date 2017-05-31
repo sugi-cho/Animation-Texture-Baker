@@ -1,6 +1,6 @@
 # Animation Texture Baker for Unity
 
-## Discription
+## Description
 
 - Bake vertex of Animation(legacy) to Texture2D
 - Bake data of Positions and Normals
