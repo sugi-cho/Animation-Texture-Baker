@@ -1,0 +1,19 @@
+﻿// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+
+struct LineInfo{
+	int idx0;
+	int idx1;
+};
+
+StructuredBuffer<float3> _VBuffer;
+StructuredBuffer<LineInfo> _LBuffer;
+RWTexture2D<float4> Output;
+
+[numthreads(8,2,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+	LineInfo info = _LBuffer[id.x];
+	int idx = 0 < id.y ? info.idx1 : info.idx0;
+	Output[id.xy] = float4(_VBuffer[idx],1.0);
+}
