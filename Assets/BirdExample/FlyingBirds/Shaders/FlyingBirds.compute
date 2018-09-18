@@ -1,0 +1,62 @@
+﻿// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel init
+#pragma kernel update
+
+#include "Quaternion.cginc"
+
+struct bird
+{
+    float3 pos;
+    float3 vel;
+    float4 rot;
+};
+
+float _dt, _maxSpeed, _targetSize, _baseSpeed, _speedRange;
+uint _numBirds;
+StructuredBuffer<float3> _ToPos;
+StructuredBuffer<float3> _ToDir;
+RWStructuredBuffer<bird> _Bird;
+
+[numthreads(8,1,1)]
+void init(uint3 id : SV_DispatchThreadID)
+{
+    uint idx = id.x;
+    if(_numBirds <= idx)
+        return;
+    bird b = (bird) _Bird[idx];
+    b.pos = _ToPos[idx];
+    b.vel = _ToDir[idx];
+    b.rot = fromToRotation(float3(0, 0, 1), _ToDir[idx]);
+
+    _Bird[idx] = b;
+}
+
+float rand(float2 co)
+{
+    return frac(sin(dot(co.xy, float2(12.9898, 78.233))) * 43758.5453);
+}
+
+[numthreads(8,1,1)]
+void update(uint3 id : SV_DispatchThreadID)
+{
+    uint idx = id.x;
+    if (_numBirds <= idx)
+        return;
+    bird b = (bird) _Bird[idx];
+    float3 pos = b.pos;
+    float3 toPos = _ToPos[idx] * _targetSize;
+    float3 vel = b.vel + (toPos - pos) * (_baseSpeed + rand(idx * 0.01) * _speedRange);
+    if (0 < length(vel))
+        vel = normalize(vel) * min(length(vel), _maxSpeed);
+
+    float overflow = max(0, -pos.y);
+    pos.y = lerp(pos.y, 0, 0 < overflow);
+    vel.y += overflow / _dt;
+    vel.xz += overflow * vel.xy;
+    
+    b.vel = vel * (0.99 - rand(idx * 0.05) * 0.05);
+    b.pos = pos + _dt * vel;
+    b.rot = fromToRotation(float3(0, 0, 1), vel);
+
+    _Bird[idx] = b;
+}
