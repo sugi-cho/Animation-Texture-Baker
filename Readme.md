@@ -30,6 +30,14 @@ running.
 - ComputeShader(Texture Generator)
 - Shader(Texture Animation Player)
 
+## Shader Graph
+
+![](imgs/umaGraph.gif)
+
+- Assets/ShaderGraph
+- Need to edit the mesh at runtime..
+  - Vertex index data is being copied to mesh.uv1 by script
+
 ## Horse
 
 horse is from Unity [AssetStore](https://www.assetstore.unity3d.com/jp/#!/content/16687). big up
