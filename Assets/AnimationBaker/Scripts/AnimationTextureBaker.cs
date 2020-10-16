@@ -16,6 +16,7 @@ public class AnimationTextureBaker : MonoBehaviour
     {
         public Vector3 position;
         public Vector3 normal;
+        public Vector3 tangent;
     }
 
     // Use this for initialization
@@ -39,7 +40,10 @@ public class AnimationTextureBaker : MonoBehaviour
             pRt.name = string.Format("{0}.{1}.posTex", name, state.name);
             var nRt = new RenderTexture(texWidth, frames, 0, RenderTextureFormat.ARGBHalf);
             nRt.name = string.Format("{0}.{1}.normTex", name, state.name);
-            foreach (var rt in new[] { pRt, nRt })
+            var tRt = new RenderTexture(texWidth, frames, 0, RenderTextureFormat.ARGBHalf);
+            tRt.name = string.Format("{0}.{1}.tangentTex", name, state.name);
+
+            foreach (var rt in new[] { pRt, nRt, tRt })
             {
                 rt.enableRandomWrite = true;
                 rt.Create();
@@ -57,7 +61,8 @@ public class AnimationTextureBaker : MonoBehaviour
                     .Select(idx => new VertInfo()
                     {
                         position = mesh.vertices[idx],
-                        normal = mesh.normals[idx]
+                        normal = mesh.normals[idx],
+                        tangent = mesh.tangents[idx]
                     })
                 );
 
@@ -74,6 +79,7 @@ public class AnimationTextureBaker : MonoBehaviour
             infoTexGen.SetBuffer(kernel, "Info", buffer);
             infoTexGen.SetTexture(kernel, "OutPosition", pRt);
             infoTexGen.SetTexture(kernel, "OutNormal", nRt);
+            infoTexGen.SetTexture(kernel, "OutTangent", tRt);
             infoTexGen.Dispatch(kernel, vCount / (int)x + 1, frames / (int)y + 1, 1);
 
             buffer.Release();
@@ -91,8 +97,10 @@ public class AnimationTextureBaker : MonoBehaviour
 
             var posTex = RenderTextureToTexture2D.Convert(pRt);
             var normTex = RenderTextureToTexture2D.Convert(nRt);
+            var tanTex = RenderTextureToTexture2D.Convert(tRt);
             Graphics.CopyTexture(pRt, posTex);
             Graphics.CopyTexture(nRt, normTex);
+            Graphics.CopyTexture(tRt, tanTex);
 
             var mat = new Material(playShader);
             mat.SetTexture("_MainTex", skin.sharedMaterial.mainTexture);
@@ -110,6 +118,7 @@ public class AnimationTextureBaker : MonoBehaviour
 
             AssetDatabase.CreateAsset(posTex, Path.Combine(subFolderPath, pRt.name + ".asset"));
             AssetDatabase.CreateAsset(normTex, Path.Combine(subFolderPath, nRt.name + ".asset"));
+            AssetDatabase.CreateAsset(tanTex, Path.Combine(subFolderPath, tRt.name + ".asset"));
             AssetDatabase.CreateAsset(mat, Path.Combine(subFolderPath, string.Format("{0}.{1}.animTex.asset", name, state.name)));
             PrefabUtility.CreatePrefab(Path.Combine(folderPath, go.name + ".prefab").Replace("\\", "/"), go);
             AssetDatabase.SaveAssets();
