@@ -1,0 +1,18 @@
+{
+    "m_Name": "Settings",
+    "m_Path": "ProjectSettings/Packages/com.unity.show-hidden-packages/Settings.json",
+    "m_Dictionary": {
+        "m_DictionaryValues": [
+            {
+                "type": "System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089",
+                "key": "ShowHiddenPackages.Enabled",
+                "value": "{\"m_Value\":true}"
+            },
+            {
+                "type": "System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089",
+                "key": "ShowHiddenPackages.DisableWarning",
+                "value": "{\"m_Value\":true}"
+            }
+        ]
+    }
+}
