@@ -70,12 +70,15 @@ public class AnimationClipTextureBaker : MonoBehaviour
                 clip.SampleAnimation(gameObject, dt * i);
                 skin.BakeMesh(mesh);
 
+                var verexArry = mesh.vertices;
+                var normalArry = mesh.normals;
+                var tangentArray = mesh.tangents;
                 infoList.AddRange(Enumerable.Range(0, vCount)
                     .Select(idx => new VertInfo()
                     {
-                        position = mesh.vertices[idx],
-                        normal = mesh.normals[idx],
-                        tangent = mesh.tangents[idx],
+                        position = verexArry[idx],
+                        normal = normalArry[idx],
+                        tangent = tangentArray[idx],
                     })
                 );
             }
